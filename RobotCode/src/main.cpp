@@ -41,7 +41,7 @@ struct wallStake {
 };
 wallStake wallstake;
 //rotation Rotation = rotation(PORT1,false);
-int autonum = 5;
+int autonum = 6;
 
 
 // define your global instances of motors and other devices here
@@ -610,23 +610,33 @@ void blue2() {
 }
 
 void skills () {
-  vex::task runIntake2(intakeTask);
-  LadyBrown.resetPosition();
-  moveWallStake(350,wallstake,12000);
-  wait(200,msec);
+  Intake.spin(forward,12000,vex::voltageUnits::mV);
+  wait(500,msec);
   clamp1.set(true);
   clamp2.set(true);
   wait(200,msec);
-  correction(-100,10,0);
-  drive_P(-750,10,90);
-  intake.isRunningIntake = true;
+  drive_P(500,10,120);
+  turn_P(-90,10);
+  drive_P(-1200,10,120);
   clamp1.set(false);
   clamp2.set(false);
   wait(200,msec);
-  turn_P(125,10);
+  turn_P(90,10);
   drive_P(800,10,120);
   turn_P(10,10);
+  LadyBrown.resetPosition();
   drive_P(2500,60,120);
+  intake.isRunningIntake = false;
+  wait(500,msec);
+  moveWallStake(100,wallstake,12000);
+  drive_P(-1000,10,120);
+  turn_P(50,10);
+  LadyBrown.resetPosition();
+  moveWallStake(40,wallstake,10000);
+  intake.isRunningIntake = true;
+  drive_P(1000,10,120);
+  moveWallStake(200,wallstake,10000);
+
 }
 
 void runAuto(int i){
@@ -667,7 +677,7 @@ void usercontrol(void) {
   bool prevValue1;
   bool prevValue2;
 //sets Motors to brake to enhance defensive capabilites
-  vex::task IntakeStall(intakeTaskUserControl);
+ // vex::task IntakeStall(intakeTaskUserControl);
   vex::task wallTask(wallStakeTask);
   int stall = 0;
   while (1) {
@@ -681,9 +691,9 @@ void usercontrol(void) {
     R3.spin(forward, rightPower,voltageUnits::mV); 
     //replace with function
     if(Controller1.ButtonY.pressing()) {
-      LadyBrown.spin(forward, 5000,vex::voltageUnits::mV);
+      LadyBrown.spin(forward, 12000,vex::voltageUnits::mV);
     } else if(Controller1.ButtonX.pressing()) {
-      LadyBrown.spin(reverse, 5000,vex::voltageUnits::mV);
+      LadyBrown.spin(reverse, 12000,vex::voltageUnits::mV);
     } else {
       LadyBrown.stop(hold);
     }
