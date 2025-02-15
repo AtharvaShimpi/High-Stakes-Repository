@@ -41,7 +41,7 @@ struct wallStake {
 };
 wallStake wallstake;
 //rotation Rotation = rotation(PORT1,false);
-int autonum = 6;
+int autonum = 5;
 
 
 // define your global instances of motors and other devices here
@@ -326,6 +326,7 @@ void moveWallStake (double target, wallStake wallstake, double power) {
       LadyBrown.spin(fwd,power,voltageUnits::mV);
     }
     LadyBrown.spin(fwd,0,voltageUnits::mV);
+     LadyBrown.stop(hold);
   } else if (target < 0) {
     while(fabs(LadyBrown.position(deg)) < fabs(target)) { 
         LadyBrown.spin(reverse,power,voltageUnits::mV);
@@ -403,7 +404,7 @@ int intakeTask() {
       Intake.spin(reverse,12000,vex::voltageUnits::mV);
       wait(500,msec);
       Intake.spin(forward,0,vex::voltageUnits::mV);
-    } else if (intake.isRunningIntake && !isMotorStalling(Intake.velocity(pct),0,100)) {
+    } else if (intake.isRunningIntake == true && !isMotorStalling(Intake.velocity(pct),0,100)) {
       Intake.spin(forward,12000,vex::voltageUnits::mV);
     } else {
       Intake.spin(forward,0,vex::voltageUnits::mV);
@@ -412,7 +413,7 @@ int intakeTask() {
   return 0;
 }
 void soloAWPStates () {
-  vex::task runIntake(intakeTask);
+  vex::task runIntake1(intakeTask);
   intake.isRunningIntake = false;
   L1.resetPosition(); 
   R1.resetPosition();
@@ -494,8 +495,6 @@ void rush() {
 
 }
 void blue1(){
-  vex::task runIntake(intakeTask);
-  intake.isRunningIntake = true;
   //drive_P(300,10);
   /*
 LadyBrown.resetPosition();
@@ -540,12 +539,14 @@ LadyBrown.resetPosition();
 }
 
 void red4Point(){
+  vex::task runIntake(intakeTask);
   L1.resetPosition(); 
   R1.resetPosition();
   LadyBrown.resetPosition();
   drive_P(200,40,120);
   wait(200,msec);
   moveWallStake(350,wallstake,10000);
+  intake.isRunningIntake = true;
   clamp1.set(true);
   clamp2.set(true);
   correction(-300,17,0);
@@ -554,10 +555,10 @@ void red4Point(){
   clamp2.set(false);
   wait(500,msec);
   turn_P(160,10);
-  drive_P(300,15,100);
-  Intake.spin(forward,12000,vex::voltageUnits::mV);
+  drive_P(315,15,100);
   correction(100,-50,15);
-  drive_P(600,15,100);
+  drive_P(800,15,100); 
+  drive_P(-200,15,100);
   wait(500,msec);
   correction(-100,50,15);
   drive_P(-700,10,100);
@@ -565,10 +566,14 @@ void red4Point(){
   drive_P(400,10,100);
   wait(500,msec);
   drive_P(-400,10,100);
+  turn_P(180,20);
+  moveWallStake(-500,wallstake,10000);
+  drive_P(1000,10,120);
 }
 
 void blue2() {
-  universalTurnFunction(-90, 10);
+  LadyBrown.resetPosition();
+  moveWallStake(85,wallstake,10000);
   /*
   drive_P(-1000,7,100);
   drive_P(200,10,100);
@@ -605,8 +610,7 @@ void blue2() {
 }
 
 void skills () {
-  vex::task runIntake(intakeTask);
-  intake.isRunningIntake = false;
+  vex::task runIntake2(intakeTask);
   LadyBrown.resetPosition();
   moveWallStake(350,wallstake,12000);
   wait(200,msec);
@@ -615,14 +619,14 @@ void skills () {
   wait(200,msec);
   correction(-100,10,0);
   drive_P(-750,10,90);
+  intake.isRunningIntake = true;
   clamp1.set(false);
   clamp2.set(false);
   wait(200,msec);
-  turn_P(135,10);
-  intake.isRunningIntake = true;
+  turn_P(125,10);
   drive_P(800,10,120);
-  turn_P(12,10);
-  drive_P(2000,60,120);
+  turn_P(10,10);
+  drive_P(2500,60,120);
 }
 
 void runAuto(int i){
