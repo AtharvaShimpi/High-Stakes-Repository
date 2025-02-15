@@ -610,6 +610,7 @@ void blue2() {
 }
 
 void skills () {
+  
   Intake.spin(forward,12000,vex::voltageUnits::mV);
   wait(500,msec);
   clamp1.set(true);
