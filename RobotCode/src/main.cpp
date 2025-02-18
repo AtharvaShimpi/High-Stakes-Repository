@@ -41,7 +41,7 @@ struct wallStake {
 };
 wallStake wallstake;
 //rotation Rotation = rotation(PORT1,false);
-int autonum = 6;
+int autonum = 5;
 
 
 // define your global instances of motors and other devices here
@@ -125,7 +125,6 @@ void drive_P(int target,double minimumSpeed,int voltageProportion)
   double error = target - L1.position(deg);
   L1.resetPosition(); 
   R1.resetPosition();
-
   while(hasCompleted) {
     double lefterror = (target - L1.position(deg));
     double righterror = (target - R1.position(deg));
@@ -163,9 +162,55 @@ void drive_P(int target,double minimumSpeed,int voltageProportion)
   holdDrivetrain();
  // runDrivetrain(forward,forward,0,0); verify and delete
   Brain.Screen.clearScreen();
-  wait(50,msec);
+  wait(30,msec);
 }
+void drive_PNew(double target,double minimumSpeed,int voltageProportion)
+{
+  double rightpower = 0;
+  double leftpower = 0;
+  bool hasCompleted = true;
+  Brain.Screen.clearScreen();
+  double error = target - L1.position(deg);
+  double kp = 100.0/(target);
+  L1.resetPosition();
+  R1.resetPosition();
+  while(hasCompleted) {
+    double lefterror = (target - L1.position(deg));
+    double righterror = (target - R1.position(deg));
 
+    if(fabs(error) == 0) { 
+        hasCompleted = false;
+    } else if ((L1.velocity(pct) == 0 && fabs(error) < 0.2*abs(target)) || (R1.velocity(pct) == 0 && fabs(error) < 0.2*abs(target))) {
+        hasCompleted = false;
+    }
+
+    leftpower = fabs(lefterror)*kp;
+    rightpower = fabs(righterror)*kp;
+    error = (lefterror+righterror)/2.0;
+
+    if(fabs((leftpower+rightpower)/2.0) < minimumSpeed) { 
+      if(target > 0){
+        leftpower = minimumSpeed;
+        rightpower = minimumSpeed;
+      } else {
+        leftpower = -minimumSpeed;
+        rightpower = -minimumSpeed;
+      }
+    }
+
+    float power = 100*(error)/abs(target);
+    Brain.Screen.printAt(2,20,"%f",fabs(error));
+    Brain.Screen.printAt(4,40,"%f",fabs(L1.position(deg)));
+    Brain.Screen.printAt(4,60,"%f",fabs(R1.position(deg)));
+    runDrivetrain( forward, forward, voltageProportion*power, voltageProportion*power);
+    wait(20, msec);
+  }
+
+  holdDrivetrain();
+ // runDrivetrain(forward,forward,0,0); verify and delete
+  Brain.Screen.clearScreen();
+  wait(30,msec);
+}
 //gives the sign of the inputted variable (negative or positive)
 int sgn(float input) {
   if(input < 0) {
@@ -190,7 +235,7 @@ void universalTurnFunction(double target, float minimumSpeed) {
   bool hasCompleted = true;
   double realTarget = target + imu.rotation(deg);
   double error = realTarget - imu.rotation(deg);
-  double kP = error; 
+  double kP = fabs(error); 
 
   while(fabs(error) > 2) { 
     power = (100/kP) * error; 
@@ -321,25 +366,27 @@ void correction(int target,int angle, int minimumSpeed) {
 }
 
 void moveWallStake (double target, wallStake wallstake, double power) {
-  if(target > 0) {
+  if(LadyBrown.position(deg) < (target-5) && LadyBrown.position(deg) > (target+5)) {
+    return;
+  }
+  if(target > LadyBrown.position(deg)) {
     while(fabs(LadyBrown.position(deg)) < fabs(target)) { 
       LadyBrown.spin(fwd,power,voltageUnits::mV);
     }
-    LadyBrown.spin(fwd,0,voltageUnits::mV);
-     LadyBrown.stop(hold);
-  } else if (target < 0) {
+     LadyBrown.spin(fwd,0,voltageUnits::mV);
+  } else if (target < LadyBrown.position(deg)) {
     while(fabs(LadyBrown.position(deg)) < fabs(target)) { 
         LadyBrown.spin(reverse,power,voltageUnits::mV);
      }
      LadyBrown.spin(fwd,0,voltageUnits::mV);
-     LadyBrown.stop(hold);
   }
+  wallstake.isCompleted = true;
 }
 
 int wallStakeTask () {
   int value = 0;
   while(true) {
-      if(Controller1.ButtonDown.pressing()) {
+      if(Controller1.ButtonY.pressing()) {
         value = 1;
       } else {
         value = 0;
@@ -348,34 +395,46 @@ int wallStakeTask () {
       case Idle:
         if(value == 1) {
           Brain.Screen.printAt(2,20,"Loading");
-          LadyBrown.resetPosition();
           wallstake.isCompleted = false;
           wallstake.states = Loading;
           wait(250,msec);
         }
       break;
       case Loading:
-        moveWallStake(190,wallstake,6000);
-        if(value == 1) {
+        if(!wallstake.isCompleted) {
+          moveWallStake(100,wallstake,10000);
+          wallstake.isCompleted = true;
+        } else {
+          wallstake.states = Idle;
+        }
+        /*
+        if(value == 1 && wallstake.isCompleted) {
           Brain.Screen.printAt(2,20,"Scoring");
           LadyBrown.resetPosition();
-          wallstake.states = Scoring;
+          wallstake.isCompleted = false;
           wait(250,msec);
         }
+        */
       break;
       case Scoring:
-        moveWallStake(350,wallstake,10000);
-        if(value == 1) {
+        while(!wallstake.isCompleted) {
+          moveWallStake(750,wallstake,10000);
+        }
+        if(value == 1 && wallstake.isCompleted) {
           Brain.Screen.printAt(2,20,"Reset");
           LadyBrown.resetPosition();
-          wallstake.states = Reset;
+          wallstake.isCompleted = false;
+          wallstake.states = Reset; 
           wait(250,msec);
         }
       break;
       case Reset:
+        while(!wallstake.isCompleted) {
         moveWallStake(-1000,wallstake,10000);
-        if(value == 1) {
+        }
+        if(value == 1 && wallstake.isCompleted) {
           LadyBrown.resetPosition();
+          wallstake.isCompleted = false;
           Brain.Screen.printAt(2,20,"Idle");
           wallstake.states = Idle;
         }
@@ -465,16 +524,20 @@ void soloAWPStates () {
 void red1() {
   clamp1.set(true);
   clamp2.set(true);
-  drive_P(-1600,10,120);
+  drive_P(-1600,10,90);
   clamp1.set(false);
   clamp2.set(false);
-  turn_P(-70,2);
+  wait(300,msec);
+  turn_P(-45,10);
   Intake.spin(forward,12000,vex::voltageUnits::mV);
   wait(500,msec);
   drive_P(1200,10,120);
   wait(500,msec);
-  turn_P(186,2);
-  drive_P(1500,10,120);
+  drive_P(-1200,10,120);
+  clamp1.set(true);
+  clamp2.set(true);
+  drive_P(1000,20,120);
+  turn_P(90,10);
 }
 
 void rush() {
@@ -495,85 +558,95 @@ void rush() {
 
 }
 void blue1(){
-  //drive_P(300,10);
-  /*
-LadyBrown.resetPosition();
-  drive_P(200,20);
-  wait(200,msec);
-  moveWallStake(1500,wallstake,10000);
+
   clamp1.set(true);
   clamp2.set(true);
-  correction(-300,20,0);
-  drive_P(-1800,30);
+  drive_P(-1600,10,90);
   clamp1.set(false);
   clamp2.set(false);
-  wait(500,msec);
-  turn_P(160,5);
-  drive_P(300,10);
+  wait(300,msec);
+  turn_P(45,10);
   Intake.spin(forward,12000,vex::voltageUnits::mV);
-  correction(100,-50,10);
-  drive_P(600,10);
   wait(500,msec);
-  correction(-100,50,10);
-  drive_P(-700,10);
-  turn_P(-45,10);
-  drive_P(400,10);
+  drive_P(1200,10,120);
   wait(500,msec);
-  drive_P(-400,10);
-  turn_P(170,10);
-  drive_P(1000,10);
-  */
-  /*
+  drive_P(-1200,10,120);
   clamp1.set(true);
   clamp2.set(true);
-  drive_P(-1600,10);
-  clamp1.set(false);
-  clamp2.set(false);
-  turn_P(70,2);
-  Intake.spin(forward,12000,vex::voltageUnits::mV);
-  wait(500,msec);
-  drive_P(1200,10);
-  wait(500,msec);
-  turn_P(180,2);
-  */
+  drive_P(1000,20,120);
+  turn_P(-90,10);
+
+  
 }
 
 void red4Point(){
-  vex::task runIntake(intakeTask);
   L1.resetPosition(); 
   R1.resetPosition();
   LadyBrown.resetPosition();
-  drive_P(200,40,120);
+  drive_P(300,40,120);
+  turn_P(-6,10);
+  moveWallStake(450,wallstake,10000);
   wait(200,msec);
-  moveWallStake(350,wallstake,10000);
-  intake.isRunningIntake = true;
+  turn_P(10,10);
   clamp1.set(true);
   clamp2.set(true);
   correction(-300,17,0);
+  Intake.spin(forward,12000,vex::voltageUnits::mV);
+  moveWallStake(100,wallstake,10000);
   drive_P(-1800,60,120);
   clamp1.set(false);
   clamp2.set(false);
   wait(500,msec);
   turn_P(160,10);
-  drive_P(315,15,100);
+  drive_P(700,15,100);
   correction(100,-50,15);
   drive_P(800,15,100); 
   drive_P(-200,15,100);
   wait(500,msec);
-  correction(-100,50,15);
+  correction(-90,50,15);
   drive_P(-700,10,100);
   turn_P(-45,10);
   drive_P(400,10,100);
   wait(500,msec);
   drive_P(-400,10,100);
-  turn_P(180,20);
-  moveWallStake(-500,wallstake,10000);
+  turn_P(170,20);
+  moveWallStake(-300,wallstake,10000);
   drive_P(1000,10,120);
 }
 
 void blue2() {
+  L1.resetPosition(); 
+  R1.resetPosition();
   LadyBrown.resetPosition();
-  moveWallStake(85,wallstake,10000);
+  drive_P(300,40,120);
+  turn_P(6,10);
+  moveWallStake(450,wallstake,10000);
+  wait(200,msec);
+  turn_P(-10,10);
+  clamp1.set(true);
+  clamp2.set(true);
+  correction(-300,-17,0);
+  Intake.spin(forward,12000,vex::voltageUnits::mV);
+  moveWallStake(100,wallstake,10000);
+  drive_P(-1800,60,120);
+  clamp1.set(false);
+  clamp2.set(false);
+  wait(500,msec);
+  turn_P(-160,10);
+  drive_P(700,15,100);
+  correction(100,50,15);
+  drive_P(800,15,100); 
+  drive_P(-200,15,100);
+  wait(500,msec);
+  correction(-90,-50,15);
+  drive_P(-700,10,100);
+  turn_P(45,10);
+  drive_P(400,10,100);
+  wait(500,msec);
+  drive_P(-400,10,100);
+  turn_P(-170,20);
+  moveWallStake(-300,wallstake,10000);
+  drive_P(1000,10,120);
   /*
   drive_P(-1000,7,100);
   drive_P(200,10,100);
@@ -610,7 +683,28 @@ void blue2() {
 }
 
 void skills () {
-  
+  Intake.spin(forward,12000,vex::voltageUnits::mV);
+  wait(500,msec);
+  drive_P(600,20,120);
+  turn_P(-80,10);
+  clamp1.set(true);
+  clamp2.set(true);
+  drive_P(-1200,10,120);
+  clamp1.set(false);
+  clamp2.set(false);
+  wait(500,msec);
+  turn_P(170,20);
+  drive_P(1000,10,120);
+  turn_P(-140,10);
+  drive_P(-1000,10,100);
+  clamp1.set(true);
+  clamp2.set(true);
+  drive_P(750,10,100);
+  turn_P(130,10);
+  drive_P(-2000,10,120);
+  clamp1.set(false);
+  clamp2.set(false);
+  /*
   Intake.spin(forward,12000,vex::voltageUnits::mV);
   wait(500,msec);
   clamp1.set(true);
@@ -637,7 +731,7 @@ void skills () {
   intake.isRunningIntake = true;
   drive_P(1000,10,120);
   moveWallStake(200,wallstake,10000);
-
+  */
 }
 
 void runAuto(int i){
@@ -679,6 +773,7 @@ void usercontrol(void) {
   bool prevValue2;
 //sets Motors to brake to enhance defensive capabilites
  // vex::task IntakeStall(intakeTaskUserControl);
+  LadyBrown.resetPosition();
   vex::task wallTask(wallStakeTask);
   int stall = 0;
   while (1) {
@@ -691,9 +786,9 @@ void usercontrol(void) {
     R2.spin(forward, rightPower,voltageUnits::mV);
     R3.spin(forward, rightPower,voltageUnits::mV); 
     //replace with function
-    if(Controller1.ButtonY.pressing()) {
+    if(Controller1.ButtonRight.pressing()) {
       LadyBrown.spin(forward, 12000,vex::voltageUnits::mV);
-    } else if(Controller1.ButtonX.pressing()) {
+    } else if(Controller1.ButtonDown.pressing()) {
       LadyBrown.spin(reverse, 12000,vex::voltageUnits::mV);
     } else {
       LadyBrown.stop(hold);
