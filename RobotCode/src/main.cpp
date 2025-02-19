@@ -79,6 +79,7 @@ void holdDrivetrain(){
   R2.stop(hold);
   R3.stop(hold);
 }
+
 bool isMotorStalling(float velocity, float stallVelocityThreshold, int stallTimeThresholdMs) {
     /**
      * Checks if a motor is stalling based on velocity alone.
@@ -383,7 +384,7 @@ void moveWallStake (double target, wallStake wallstake, double power) {
   wallstake.isCompleted = true;
 }
 
-int wallStakeTask () {
+int wallStakeTask() {
   int value = 0;
   while(true) {
       if(Controller1.ButtonY.pressing()) {

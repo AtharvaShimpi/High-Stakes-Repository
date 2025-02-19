@@ -1,0 +1,14 @@
+extern brain Brain;
+extern inertial imu;
+extern digital_out clamp1;
+extern digital_out clamp2;
+extern digital_out doinker;
+extern controller Controller1;
+extern motor L1;
+extern motor L2;
+extern motor L3;
+extern motor R1;
+extern motor R2;
+extern motor R3;
+extern motor Intake;
+extern motor LadyBrown;
