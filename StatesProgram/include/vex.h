@@ -12,6 +12,7 @@
 #include "helperFunctions.h"
 #include "autonomous.h"
 #include "wallstake.h"
+#include "intake.h"
 
 #define waitUntil(condition)                                                   \
   do {                                                                         \
