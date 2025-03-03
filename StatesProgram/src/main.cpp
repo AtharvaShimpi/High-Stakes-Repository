@@ -37,8 +37,11 @@ void usercontrol(void) {
   // vex::task IntakeStall(intakeTaskUserControl);
   LadyBrown.resetPosition();
   vex::task wallTask(wallStakeTask);
+  vex::task stall(intakeTask);
   int stall = 0;
   while (1) {
+    
+    intake.isRunningIntake = false;
     int rightPower = Controller1.Axis2.position()*120;
     int leftPower = Controller1.Axis3.position()*120;
     runDrivetrain(fwd,fwd,rightPower,leftPower);

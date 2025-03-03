@@ -187,27 +187,19 @@ void blueNegativeQ() {
 }
 
 void skills () {
-  Intake.spin(forward,12000,vex::voltageUnits::mV);
-  wait(500,msec);
-  drive_P(600,20,120);
-  turn_P(-80,10);
+  vex::task stall(intakeTask);
+  //tune this
+  intake.isRunningIntake = true;
+  moveWallStake(450,wallstake,12000);
+  wait(200,msec);
+  moveWallStake(-450,wallstake,12000);
+  drive_P(-400,10,100);
+  turn_P(-120,10);
   clamp1.set(true);
-  clamp2.set(true);
-  drive_P(-1200,10,120);
-  clamp1.set(false);
-  clamp2.set(false);
-  wait(500,msec);
-  turn_P(170,20);
-  drive_P(1000,10,120);
-  turn_P(-140,10);
-  drive_P(-1000,10,100);
   clamp1.set(true);
-  clamp2.set(true);
-  drive_P(750,10,100);
-  turn_P(130,10);
-  drive_P(-2000,10,120);
-  clamp1.set(false);
-  clamp2.set(false);
+  drive_P(400,10,120);
+  correction(400,53,10);
+  drive_P(1000,10,90);
 }
 
 void runAuto(int i){

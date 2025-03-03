@@ -684,55 +684,7 @@ void blue2() {
 }
 
 void skills () {
-  Intake.spin(forward,12000,vex::voltageUnits::mV);
-  wait(500,msec);
-  drive_P(600,20,120);
-  turn_P(-80,10);
-  clamp1.set(true);
-  clamp2.set(true);
-  drive_P(-1200,10,120);
-  clamp1.set(false);
-  clamp2.set(false);
-  wait(500,msec);
-  turn_P(170,20);
-  drive_P(1000,10,120);
-  turn_P(-140,10);
-  drive_P(-1000,10,100);
-  clamp1.set(true);
-  clamp2.set(true);
-  drive_P(750,10,100);
-  turn_P(130,10);
-  drive_P(-2000,10,120);
-  clamp1.set(false);
-  clamp2.set(false);
-  /*
-  Intake.spin(forward,12000,vex::voltageUnits::mV);
-  wait(500,msec);
-  clamp1.set(true);
-  clamp2.set(true);
-  wait(200,msec);
-  drive_P(500,10,120);
-  turn_P(-90,10);
-  drive_P(-1200,10,120);
-  clamp1.set(false);
-  clamp2.set(false);
-  wait(200,msec);
-  turn_P(90,10);
-  drive_P(800,10,120);
-  turn_P(10,10);
-  LadyBrown.resetPosition();
-  drive_P(2500,60,120);
-  intake.isRunningIntake = false;
-  wait(500,msec);
-  moveWallStake(100,wallstake,12000);
-  drive_P(-1000,10,120);
-  turn_P(50,10);
-  LadyBrown.resetPosition();
-  moveWallStake(40,wallstake,10000);
-  intake.isRunningIntake = true;
-  drive_P(1000,10,120);
-  moveWallStake(200,wallstake,10000);
-  */
+ 
 }
 
 void runAuto(int i){
