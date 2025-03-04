@@ -90,7 +90,7 @@ void correction(double target,double angle, double minimumSpeed) {
   R1.resetPosition();
   imu.resetRotation();
   double turn_error = angle - imu.rotation(deg);
-  double turn_kP = (fabs(target)+fabs(angle))/1300;
+  double turn_kP = (fabs(target)+fabs(angle))/1150;
   double turn_power = 0;
   while(error > 0.08*target) {
 
