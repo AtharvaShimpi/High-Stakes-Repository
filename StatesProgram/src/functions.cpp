@@ -85,14 +85,14 @@ void correction(double target,double angle, double minimumSpeed) {
   int velocity_timer = 0;
   bool hasCompleted = true;
   Brain.Screen.clearScreen();
-  double error = target - L1.position(deg);
   L1.resetPosition();
   R1.resetPosition();
   imu.resetRotation();
+  double error = target - L1.position(deg);
   double turn_error = angle - imu.rotation(deg);
   double turn_kP = (fabs(target)+fabs(angle))/1150;
   double turn_power = 0;
-  while(fabs(error) > 0.08*fabs(target)) {
+  while(fabs(error) > 0.08*fabs(target)) { 
 
 
     turn_error = angle - inertialLimit();
