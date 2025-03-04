@@ -1,7 +1,7 @@
 #include "vex.h"
 using namespace vex;
 
-void runDrivetrain(vex::directionType rightDirection, vex::directionType leftDirection, float rightPower, float leftPower) {
+void runDrivetrain(vex::directionType rightDirection, vex::directionType leftDirection, double rightPower, double leftPower) {
     L1.spin(leftDirection,leftPower,vex::voltageUnits::mV);
     L2.spin(leftDirection,leftPower,vex::voltageUnits::mV);
     L3.spin(leftDirection,leftPower,vex::voltageUnits::mV);

@@ -3,7 +3,7 @@
 using namespace vex;
 
 brain Brain;
-inertial imu = inertial(PORT18);
+inertial imu = inertial(PORT15);
 digital_out clamp1 = digital_out(Brain.ThreeWirePort.A);
 digital_out clamp2 = digital_out(Brain.ThreeWirePort.C);
 digital_out doinker = digital_out(Brain.ThreeWirePort.H);

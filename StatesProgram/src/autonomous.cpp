@@ -187,6 +187,7 @@ void blueNegativeQ() {
 }
 
 void skills () {
+  /*
   vex::task stall(intakeTask);
   //tune this
   intake.isRunningIntake = true;
@@ -200,6 +201,8 @@ void skills () {
   drive_P(400,10,120);
   correction(400,53,10);
   drive_P(1000,10,90);
+  */
+  correction(700,90,0);
 }
 
 void runAuto(int i){

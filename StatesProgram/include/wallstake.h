@@ -9,7 +9,8 @@ struct wallStake {
   wallStakeStates states;
   bool isCompleted;
 };
-wallStake wallstake;
+
+extern wallStake wallstake;
 
 void moveWallStake (double target, wallStake wallstake, double power);
 int wallStakeTask();

@@ -1,6 +1,8 @@
 #include "vex.h"
 using namespace vex;
 
+wallStake wallstake;
+
 void moveWallStake (double target, wallStake wallstake, double power) {
   if(LadyBrown.position(deg) < (target-5) && LadyBrown.position(deg) > (target+5)) {
     return;

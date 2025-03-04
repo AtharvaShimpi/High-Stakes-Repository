@@ -10,7 +10,7 @@
 #include "vex.h"
 
 using namespace vex;
-int autonum = 4;
+int autonum = 6;
 
 competition Competition;
 
@@ -38,7 +38,6 @@ void usercontrol(void) {
   LadyBrown.resetPosition();
   vex::task wallTask(wallStakeTask);
   vex::task stall(intakeTask);
-  int stall = 0;
   while (1) {
     
     intake.isRunningIntake = false;
