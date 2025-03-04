@@ -4,15 +4,16 @@ using namespace vex;
 wallStake wallstake;
 
 void moveWallStake (double target, wallStake wallstake, double power) {
-  if(LadyBrown.position(deg) < (target-5) && LadyBrown.position(deg) > (target+5)) {
+  LadyBrown.resetPosition();
+  if(LadyBrown.position(deg) > (target-5) && LadyBrown.position(deg) < (target+5)) {
     return;
   }
-  if(target > LadyBrown.position(deg)) {
+  if(target > 0) {
     while(fabs(LadyBrown.position(deg)) < fabs(target)) { 
       LadyBrown.spin(fwd,power,voltageUnits::mV);
     }
      LadyBrown.spin(fwd,0,voltageUnits::mV);
-  } else if (target < LadyBrown.position(deg)) {
+  } else if (target < 0) {
     while(fabs(LadyBrown.position(deg)) < fabs(target)) { 
         LadyBrown.spin(reverse,power,voltageUnits::mV);
      }

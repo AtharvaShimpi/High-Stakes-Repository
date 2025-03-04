@@ -13,7 +13,7 @@ void drive_P(int target,double minimumSpeed,int voltageProportion)
   double power = 0;
   L1.resetPosition();
   R1.resetPosition();
-  while(error > 0.08*target) {
+  while(fabs(error) > 0.08*fabs(target)) {
     double lefterror = (target - L1.position(deg));
     double righterror = (target - R1.position(deg));
 
@@ -92,7 +92,7 @@ void correction(double target,double angle, double minimumSpeed) {
   double turn_error = angle - imu.rotation(deg);
   double turn_kP = (fabs(target)+fabs(angle))/1150;
   double turn_power = 0;
-  while(error > 0.08*target) {
+  while(fabs(error) > 0.08*fabs(target)) {
 
 
     turn_error = angle - inertialLimit();
